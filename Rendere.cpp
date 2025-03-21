@@ -35,7 +35,7 @@ int main()
 {
 	// Initialize GLFW
 	glfwInit();
-	ImGuiConsole console;
+	PraxoConsole console;
 
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);

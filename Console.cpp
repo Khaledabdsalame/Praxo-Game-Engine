@@ -1,23 +1,23 @@
 #include "Console.h"
 #include <windows.h>
-ImGuiConsole::ImGuiConsole() {
+PraxoConsole::PraxoConsole() {
     memset(InputBuf, 0, sizeof(InputBuf));
 }
 
-void ImGuiConsole::RedirectStdout() {
+void PraxoConsole::RedirectStdout() {
     if (OldStdout == nullptr) {  // If not already redirected
         OldStdout = std::cout.rdbuf(CaptureBuffer.rdbuf());  // Redirect std::cout
     }  // Redirect stdout
 }
 
-void ImGuiConsole::ResetStdout() {
+void PraxoConsole::ResetStdout() {
      if (OldStdout != nullptr) { 
         std::cout.rdbuf(OldStdout);
         OldStdout = nullptr;
     }  
 }
 
-void ::ImGuiConsole::CaptureOutput() {
+void ::PraxoConsole::CaptureOutput() {
 
     std::string captured = CaptureBuffer.str();
     if (!captured.empty()) {
@@ -27,7 +27,7 @@ void ::ImGuiConsole::CaptureOutput() {
     }
 }
 
-void ImGuiConsole :: AddLog(const char* fmt, ...){
+void PraxoConsole :: AddLog(const char* fmt, ...){
 
         va_list args;
         va_start(args, fmt);
@@ -39,7 +39,7 @@ void ImGuiConsole :: AddLog(const char* fmt, ...){
 
 }
 
-void ImGuiConsole :: Draw(const char* title) {
+void PraxoConsole :: Draw(const char* title) {
     ImGui::Begin(title,nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
     CaptureOutput();
@@ -65,7 +65,7 @@ void ImGuiConsole :: Draw(const char* title) {
 
 }
 
-void ImGuiConsole::Command(const char * Cmd) {
+void PraxoConsole::Command(const char * Cmd) {
     ProcessCommand(Cmd);
    
 }

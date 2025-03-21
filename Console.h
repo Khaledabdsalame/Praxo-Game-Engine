@@ -6,7 +6,7 @@
 #include <sstream>
 #include <iostream>
 
-class ImGuiConsole {
+class PraxoConsole {
 public:
     std::vector<std::string> LogBuffer;  // Stores console output
     char InputBuf[256];                  // User input buffer
@@ -15,7 +15,7 @@ public:
     void Draw(const char* title);
     std::stringstream CaptureBuffer;
     std::streambuf* OldStdout = nullptr;
-    ImGuiConsole();
+   PraxoConsole();
     void RedirectStdout();
     void ResetStdout();
     void CaptureOutput();
