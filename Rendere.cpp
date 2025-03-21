@@ -23,7 +23,7 @@
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include "ImGuiFileDialog.h"
-
+#include "Console.h"
 #include"Camera.h"
 
 
@@ -35,6 +35,7 @@ int main()
 {
 	// Initialize GLFW
 	glfwInit();
+	ImGuiConsole console;
 
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -150,10 +151,17 @@ int main()
 
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
+
+	
 	
 	while (!glfwWindowShouldClose(window))
 	{
-		
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		ImGui::SetNextWindowPos(ImVec2(0,545), ImGuiCond_Always);
+		console.Draw("Praxo Engine Console");
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
@@ -163,9 +171,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
+		
         
 
 		
@@ -328,9 +334,8 @@ int main()
 		ImGui::End();
 		
 		
-
-
-	
+		
+		
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -338,7 +343,7 @@ int main()
 		
 		glfwPollEvents();
 	}
-
+    
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
