@@ -1,10 +1,8 @@
 #ifndef CAMERA_CLASS_H
 #define CAMERA_CLASS_H
-
-
-
-
 #define GLM_ENABLE_EXPERIMENTAL
+
+
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 
@@ -13,8 +11,15 @@
 #include<glm/gtc/type_ptr.hpp>
 #include<glm/gtx/rotate_vector.hpp>
 #include<glm/gtx/vector_angle.hpp>
-
 #include"Shaders/ShaderClass.h"
+
+
+#include"imgui.h"
+#include"imgui_impl_glfw.h"
+#include"imgui_impl_opengl3.h"
+#include "ImGuizmo.h"
+
+
 
 class Camera
 {
@@ -42,6 +47,9 @@ public:
 	void Matrix(float FOVdeg, float nearPlane, float farPlane, Shader& shader, const char* uniform);
 	// Handles camera inputs
 	void Inputs(GLFWwindow* window, float deltaTime);
+
+
+	
 	
 };
 #endif

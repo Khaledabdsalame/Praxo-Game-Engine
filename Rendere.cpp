@@ -1,10 +1,7 @@
 
 
-#include"imgui.h"
-#include"imgui_impl_glfw.h"
-#include"imgui_impl_opengl3.h"
-#include"Shaders/ShaderClass.h"
 
+#include"Shaders/ShaderClass.h"
 
 #include"Buffers/EBO.h"
 #include"Buffers/VAO.h"
@@ -12,9 +9,6 @@
 #include "Models/Models.h"
 #include<stb/stb_image.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
@@ -31,13 +25,14 @@
 
 
 
+
 int main()
 {
 	// Initialize GLFW
 	glfwInit();
 	PraxoConsole console;
 
-
+	
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	
@@ -211,31 +206,32 @@ int main()
 			
 			ImGui::Checkbox("Draw Pyramide", &drawTriangle);
 			ImGui::Checkbox("Draw Cube", &DrawSquare);
-
+			
+			VAO4.Bind();
 			if (DrawSquare)
 			{   
 				
 				
-				camera.Inputs(window,deltaTime);
+				
+				
+                camera.Inputs(window, deltaTime);
 				camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
-				
-				
-				glBindVertexArray(0);
-				VAO4.Bind();	
+					
 				glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 			}
 			else if (drawTriangle)
 			{
 
-				
-					
-				camera.Inputs(window,deltaTime);
+
+				camera.Inputs(window, deltaTime);
 				camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
-				
-				glBindVertexArray(0);
 				VAO5.Bind();
-				glDrawElements(GL_TRIANGLES, sizeof(Verticies::Pyramides_indices)/sizeof(int), GL_UNSIGNED_INT, 0);
+			    glDrawElements(GL_TRIANGLES, sizeof(Verticies::Pyramides_indices) / sizeof(int), GL_UNSIGNED_INT, 0);
+
+				
+				
+				
 			}
          
 		

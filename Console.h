@@ -1,5 +1,6 @@
 #ifndef PRAXO_CONSOLE_H
 #define PRAXO_CONSOLE_H
+
 #include "imgui.h"
 #include <vector>
 #include <string>
