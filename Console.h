@@ -9,14 +9,16 @@
 
 class PraxoConsole {
 public:
+    
+    bool autoScroll = true;
     std::vector<std::string> LogBuffer;  // Stores console output
     char InputBuf[256];                  // User input buffer
-    bool ScrollToBottom = true;          // Auto-scroll
+    bool scrol = true;
     void AddLog(const char* fmt, ...);
     void Draw(const char* title);
     std::stringstream CaptureBuffer;
     std::streambuf* OldStdout = nullptr;
-   PraxoConsole();
+    PraxoConsole();
     void RedirectStdout();
     void ResetStdout();
     void CaptureOutput();

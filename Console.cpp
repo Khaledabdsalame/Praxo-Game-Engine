@@ -35,7 +35,7 @@ void PraxoConsole :: AddLog(const char* fmt, ...){
         vsnprintf(buf, sizeof(buf), fmt, args);
         va_end(args);
         LogBuffer.push_back(buf);
-        ScrollToBottom = true;
+       
 
 }
 
@@ -46,11 +46,22 @@ void PraxoConsole :: Draw(const char* title) {
 
     // Output log
     ImGui::BeginChild("ConsoleOutput", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
-    for (const auto& line : LogBuffer)
+    for (const auto& line : LogBuffer) {
         ImGui::TextUnformatted(line.c_str());
-    if (ScrollToBottom)
+        
+    }
+
+    float scrollY = ImGui::GetScrollY();
+    float scrollMaxY = ImGui::GetScrollMaxY();
+    bool isAtBottom = (scrollY >= scrollMaxY - 5.0f);
+        
+    if (autoScroll && isAtBottom) {
         ImGui::SetScrollHereY(1.0f);
-    ScrollToBottom = false;
+    }
+
+   
+   
+    
     ImGui::EndChild();
 
     // User input

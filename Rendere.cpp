@@ -201,7 +201,7 @@ int main()
 	
 		   
 		
-			
+		std::cout << "YDKF";
 			
 			
 			ImGui::Checkbox("Draw Pyramide", &drawTriangle);
