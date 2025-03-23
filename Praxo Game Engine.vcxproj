@@ -429,8 +429,8 @@
     <ClInclude Include="Shaders\ShaderClass.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Default.frag" />
-    <None Include="Default.vert" />
+    <None Include="FragmentShader.glsl" />
+    <None Include="VertexShader.glsl" />
     <None Include="include\glm\detail\func_common.inl" />
     <None Include="include\glm\detail\func_common_simd.inl" />
     <None Include="include\glm\detail\func_exponential.inl" />
