@@ -18,7 +18,7 @@ glm::mat4 model = glm::mat4(1.0f);
 
 
 
-void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, Shader& shader, const char* uniform)
+void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, Shader& shader, const char* uniform, GLFWwindow*  window)
 {
 	
 	// Initializes matrices since otherwise they will be the null matrix
@@ -33,8 +33,14 @@ void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, Shader& shade
 	ImGuizmo::SetOrthographic(false);
 	ImGuizmo::SetRect(0, 0, width, height);
 
+	static ImGuizmo::OPERATION operation = ImGuizmo::TRANSLATE;
+	if (ImGui::IsKeyPressed(ImGuiKey_T)) operation = ImGuizmo::TRANSLATE;
+	if (ImGui::IsKeyPressed(ImGuiKey_G)) operation = ImGuizmo::ROTATE;
+	if (ImGui::IsKeyPressed(ImGuiKey_H)) operation = ImGuizmo::SCALE;
+
+		
 	ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection),
-		ImGuizmo::TRANSLATE, ImGuizmo::MODE::WORLD, glm::value_ptr(model));
+		operation, ImGuizmo::MODE::WORLD, glm::value_ptr(model));
 
 	// Set the ImGuizmo manipulation mode
 	
@@ -49,11 +55,14 @@ void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, Shader& shade
 
 
 
+
 void Camera::Inputs(GLFWwindow* window, float deltaTime)
 {
 	if (ImGui::GetIO().WantCaptureMouse)
 		return;
-	// Handles key inputs
+
+
+	
 	float adjustedSpeed = speed * deltaTime;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
@@ -90,7 +99,7 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime)
 
 
 	// Handles mouse inputs
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 	{
 		// Hides mouse cursor
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);

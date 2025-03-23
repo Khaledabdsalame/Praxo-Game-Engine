@@ -215,7 +215,8 @@ int main()
 				
 				
                 camera.Inputs(window, deltaTime);
-				camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
+				camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix",window);
+				
 					
 				glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
@@ -225,7 +226,7 @@ int main()
 
 
 				camera.Inputs(window, deltaTime);
-				camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
+				camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix",window);
 				VAO5.Bind();
 			    glDrawElements(GL_TRIANGLES, sizeof(Verticies::Pyramides_indices) / sizeof(int), GL_UNSIGNED_INT, 0);
 
