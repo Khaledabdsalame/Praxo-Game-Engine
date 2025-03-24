@@ -25,7 +25,6 @@
 
 
 
-
 int main()
 {
 	// Initialize GLFW
@@ -66,8 +65,8 @@ int main()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 
 
@@ -198,10 +197,44 @@ int main()
 		// Checkbox that appears in the window
 		
 
-	
-		   
+
+		if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
+			ImGui::OpenPopup("ScreenClickPopup");
+		}
+
+		// Center the popup at mouse position
+		if (ImGui::BeginPopup("ScreenClickPopup")) {
+			ImGui::SetNextWindowPos(io.MousePos, ImGuiCond_Appearing);  // Open at click location
+
+			if (ImGui::BeginMenu("Add")) {
+				if (ImGui::MenuItem("Cube"))
+				{
+
+				}
+				if (ImGui::MenuItem("Pyramid"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Circle"))
+				{
+
+				}
+			ImGui::EndMenu();
+			}
+			if (ImGui::MenuItem("Option 2")) {
+				// Handle option 2
+			}
+			if (ImGui::MenuItem("Close")) {
+				ImGui::CloseCurrentPopup();
+			}
+
+			
+
+			ImGui::EndPopup();
+		}
 		
-		std::cout << "YDKF";
+		
 			
 			
 			ImGui::Checkbox("Draw Pyramide", &drawTriangle);
