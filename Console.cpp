@@ -65,7 +65,7 @@ void PraxoConsole :: Draw(const char* title) {
     ImGui::EndChild();
 
     // User input
-    ImGui::SetNextItemWidth(GetSystemMetrics(SM_CXSCREEN)-140);
+    ImGui::SetNextItemWidth(GetSystemMetrics(SM_CXSCREEN)-130);
     if (ImGui::InputText("Command", InputBuf, IM_ARRAYSIZE(InputBuf), ImGuiInputTextFlags_EnterReturnsTrue)) {
         ProcessCommand(InputBuf);
         memset(InputBuf, 0, sizeof(InputBuf));

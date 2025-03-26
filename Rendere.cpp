@@ -29,6 +29,7 @@ int main()
 {
 	// Initialize GLFW
 	glfwInit();
+
 	PraxoConsole console;
 
 	
@@ -154,7 +155,7 @@ int main()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		ImGui::SetNextWindowPos(ImVec2(0,545), ImGuiCond_Always);
+		ImGui::SetNextWindowPos(ImVec2(0, 555), ImGuiCond_Always);
 		console.Draw("Praxo Engine Console");
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
