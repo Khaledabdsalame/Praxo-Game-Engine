@@ -8,8 +8,6 @@
 #include"Buffers/VBO.h"
 #include "Models/Models.h"
 #include<stb/stb_image.h>
-
-
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include<Windows.h>
@@ -19,8 +17,7 @@
 #include "ImGuiFileDialog.h"
 #include "Console.h"
 #include"Camera.h"
-
-
+#include "Textures/Textures.h"
 
 
 
@@ -54,24 +51,13 @@ int main()
 
 	Shader shaderProgram("VertexShader.glsl", "FragmentShader.glsl");
 
+	
 
-
-	int width, hight, colorch;
-	stbi_set_flip_vertically_on_load(true);
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D,texture);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
+	
 
 
 	
+	Texture Textures;
 	
 
 	// 2D SPace
@@ -177,8 +163,9 @@ int main()
 	
 
 	
-
-		
+		camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix", window);
+		camera.Inputs(window, deltaTime);
+		Textures.Bind();
 
 		ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
 
@@ -241,28 +228,24 @@ int main()
 			ImGui::Checkbox("Draw Pyramide", &drawTriangle);
 			ImGui::Checkbox("Draw Cube", &DrawSquare);
 			
-			VAO4.Bind();
+			
+			
 			if (DrawSquare)
 			{   
 				
 				
 				
-				
-                camera.Inputs(window, deltaTime);
-				camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix",window);
-				
-					
+				VAO4.Bind();	
 				glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 			}
 			else if (drawTriangle)
 			{
 
-
-				camera.Inputs(window, deltaTime);
-				camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix",window);
+				
+				
 				VAO5.Bind();
-			    glDrawElements(GL_TRIANGLES, sizeof(Verticies::Pyramides_indices) / sizeof(int), GL_UNSIGNED_INT, 0);
+			    glDrawElements(GL_TRIANGLES,36, GL_UNSIGNED_INT, 0);
 
 				
 				
@@ -328,27 +311,12 @@ int main()
 		{
 			if (ImGuiFileDialog::Instance()->IsOk())
 			{
+				
 				std::string filePath = ImGuiFileDialog::Instance()->GetFilePathName();
-				std::cout << ImGuiFileDialog::Instance()->GetCurrentFilter();
-				unsigned char* bytes = stbi_load(filePath.c_str(), &width, &hight, &colorch, 0);
-				if (ImGuiFileDialog::Instance()->GetCurrentFilter()==".png")
-				{
-                   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, hight, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
-				}
-				else 
-				{
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, hight, 0, GL_RGB, GL_UNSIGNED_BYTE, bytes);
-				}
-				
-				
-				glGenerateMipmap(GL_TEXTURE_2D);
-				stbi_image_free(bytes);
-				glBindTexture(GL_TEXTURE_2D, 0);
+				Textures.Setter(filePath.c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 				glUniform1i(glGetUniformLocation(shaderProgram.ID, "useTexture"), 1);
-				GLuint tex0uni = glGetUniformLocation(shaderProgram.ID,"tex0");
-				shaderProgram.Activate();
-				glUniform1i(tex0uni,0);
-				glBindTexture(GL_TEXTURE_2D, texture);
+				Textures.texUnit(shaderProgram, "tex0", 0);
+				
 				
 				
 			}
@@ -356,7 +324,7 @@ int main()
 		}
 		
 		if (ImGui::Button("Delete Texture")) {
-			glBindTexture(GL_TEXTURE_2D, 0);
+			Textures.Unbind();
 			glUniform1i(glGetUniformLocation(shaderProgram.ID, "useTexture"), 0);
 		}
 
@@ -380,7 +348,7 @@ int main()
 	ImGui::DestroyContext();
 	VAO4.Delete();
 	VBO4.Delete();	
-	glDeleteTextures(1, &texture);
+	Textures.Delete();
 	shaderProgram.Delete();
 	glfwDestroyWindow(window);
 	

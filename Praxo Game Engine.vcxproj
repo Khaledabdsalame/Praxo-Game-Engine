@@ -84,7 +84,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>IMGUI_DEFINE_MATH_OPERATORS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\lenovo\source\repos\Praxo Game Engine;imgui</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -116,7 +116,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>IMGUI_DEFINE_MATH_OPERATORS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\lenovo\source\repos\Praxo Game Engine;imgui</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -162,6 +162,7 @@
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Rendere.cpp" />
     <ClCompile Include="Shaders\ShadersClass.cpp" />
+    <ClCompile Include="Textures\Textures.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Buffers\EBO.h" />
@@ -427,6 +428,7 @@
     <ClInclude Include="include\stb\stb_image.h" />
     <ClInclude Include="Models\Models.h" />
     <ClInclude Include="Shaders\ShaderClass.h" />
+    <ClInclude Include="Textures\Textures.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FragmentShader.glsl" />
