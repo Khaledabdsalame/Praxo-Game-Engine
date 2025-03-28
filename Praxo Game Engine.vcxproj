@@ -431,8 +431,8 @@
     <ClInclude Include="Textures\Textures.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="FragmentShader.glsl" />
-    <None Include="VertexShader.glsl" />
+    <None Include="Shaders\Glsl\FragmentShader.glsl" />
+    <None Include="Shaders\Glsl\VertexShader.glsl" />
     <None Include="include\glm\detail\func_common.inl" />
     <None Include="include\glm\detail\func_common_simd.inl" />
     <None Include="include\glm\detail\func_exponential.inl" />

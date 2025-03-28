@@ -880,10 +880,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="VertexShader.glsl">
+    <None Include="Shaders\Glsl\VertexShader.glsl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="FragmentShader.glsl">
+    <None Include="Shaders\Glsl\FragmentShader.glsl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="include\glm\detail\func_common.inl">

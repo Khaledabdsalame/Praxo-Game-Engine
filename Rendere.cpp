@@ -49,7 +49,7 @@ int main()
 	
 	glViewport(0, 0, GetSystemMetrics(SM_CXSCREEN),GetSystemMetrics(SM_CYSCREEN));
 
-	Shader shaderProgram("VertexShader.glsl", "FragmentShader.glsl");
+	Shader shaderProgram("Shaders/Glsl/VertexShader.glsl", "Shaders/Glsl/FragmentShader.glsl");
 
 	
 
