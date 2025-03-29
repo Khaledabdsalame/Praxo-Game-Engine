@@ -53,7 +53,15 @@ int main()
 	
 
 	glm::mat4 cubeModel = glm::mat4(1.0f);
+
+	glm::vec3 PYRAMIDPos = glm::vec3(1.5f, -0.5f, 0.0f);
 	glm::mat4 pyramidModel = glm::mat4(1.0f);
+	pyramidModel= glm::translate(pyramidModel, PYRAMIDPos);
+
+
+	glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
+	glm::mat4 light = glm::mat4(1.0f);
+	light = glm::translate(light, lightPos);
 	ImGuizmo::OPERATION currentGizmoOperation = ImGuizmo::TRANSLATE;
 
 	int selectedObject = 0;
@@ -90,6 +98,21 @@ int main()
 	VBO5.Unbind();
 	EBO5.Unbind();
 
+	Shader lightShader("Shaders/Glsl/LightVert.glsl", "Shaders/Glsl/LightFrag.glsl");
+	// Generates Vertex Array Object and binds it
+	VAO lightVAO;
+	lightVAO.Bind();
+	// Generates Vertex Buffer Object and links it to vertices
+	VBO lightVBO(Verticies::lightVertices, sizeof(Verticies::lightVertices));
+	// Generates Element Buffer Object and links it to indices
+	EBO lightEBO(Verticies::lightIndices, sizeof(Verticies::lightIndices));
+	// Links VBO attributes such as coordinates and colors to VAO
+	lightVAO.LinkAttrib(lightVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
+	// Unbind all to prevent accidentally modifying them
+	lightVAO.Unbind();
+	lightVBO.Unbind();
+	lightEBO.Unbind();
+
 	
 	ImGuiWindowFlags window_flags =
 		ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
@@ -111,6 +134,7 @@ int main()
 	// By Default 
 	bool drawTriangle = false;
 	bool DrawSquare = true;
+	bool addlight = false;
 	bool Gradinet = true;
 	bool showGizmo = false;
 
@@ -118,7 +142,7 @@ int main()
 	float color[4] = { 1.0f, 0.97f, 0.95f, 1.0f };
 	float color1[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	float color2[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	
+	float lightcolor[4] = { 1.0,1.0f,1.0f,1.0f };
 	
 
 	//Shader Prgrame
@@ -139,7 +163,7 @@ int main()
 	float lastFrame = 0.0f;
 
 	
-	static std::vector<std::string> gameObjects = {"Cube","Pyramid"};
+	static std::vector<std::string> gameObjects = {"Cube","Pyramid","Light"};
 	while (!glfwWindowShouldClose(window))
 	{
 		ImGui_ImplOpenGL3_NewFrame();
@@ -170,7 +194,8 @@ int main()
 	
 		
 		camera.Inputs(window, deltaTime);
-		camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix", window);
+		camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
+		
 		Textures.Bind();
 
 		ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
@@ -232,6 +257,7 @@ int main()
 			
 			ImGui::Checkbox("Draw Pyramide", &drawTriangle);
 			ImGui::Checkbox("Draw Cube", &DrawSquare);
+			ImGui::Checkbox("Add Light", &addlight);
 			
 			
 			
@@ -255,6 +281,15 @@ int main()
 				 glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 			}
 
+			 if (addlight)
+			 {
+				 lightShader.Activate();
+				 camera.Matrix(45.0f, 0.1f, 100.0f, lightShader, "camMatrix");
+				 glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(light));
+				 lightVAO.Bind();
+				 glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+			 }
 
 			 if (ImGui::IsMouseClicked(0) && !ImGui::GetIO().WantCaptureMouse) {
 				 
@@ -294,6 +329,17 @@ int main()
 					 selectedObject = 1;
 					 showGizmo = true;
 				 }
+
+				 else if (camera.RayOBBIntersection(
+					 rayOrigin, rayDirection,
+					 light,
+					 glm::vec3(-0.5f, -0.5f, -0.5f),
+					 glm::vec3(0.5f, 0.5f, 0.5f),
+					 cubeDistance))
+				 {
+					 selectedObject = 2;
+					 showGizmo = true;
+				 }
 				 else {
 					 showGizmo = false;
 				 }
@@ -330,7 +376,7 @@ int main()
 				 if (ImGui::IsKeyPressed(ImGuiKey_G))currentGizmoOperation = ImGuizmo::ROTATE;
 				 if (ImGui::IsKeyPressed(ImGuiKey_H)) currentGizmoOperation = ImGuizmo::SCALE;
 				 
-				 glm::mat4* modelToManipulate = (selectedObject == 0) ? &cubeModel : &pyramidModel;
+				 glm::mat4* modelToManipulate = (selectedObject == 0) ? &cubeModel : (selectedObject == 1) ? &pyramidModel : &light;
 				 ImGuizmo::Manipulate(
 					 glm::value_ptr(camera.GetViewMatrix()),
 					 glm::value_ptr(camera.GetProjectionMatrix(45.0f, 0.1f, 100.0f)),
@@ -350,7 +396,13 @@ int main()
 		glUniform1f(shaderProgram.BindImgui("size"), size);
 
 		glUniform4f(shaderProgram.BindImgui("color"), color[0], color[1], color[2], color[3]);
-		
+		if (addlight)
+		{
+			ImGui::ColorEdit4("Light", lightcolor);
+			lightShader.Activate();
+			glUniform4f(lightShader.BindImgui("lightColor"), lightcolor[0], lightcolor[1], lightcolor[2], lightcolor[3]);
+
+		}
 		ImGui::Checkbox("Gradient", &Gradinet);
 		if (Gradinet)
 		{  
@@ -436,10 +488,14 @@ int main()
 	ImGui::DestroyContext();
 	VAO4.Delete();
 	VBO4.Delete();	
+	EBO4.Delete();
+	VAO5.Delete();
+	VBO5.Delete();
+	EBO5.Delete();
+	lightShader.Delete();
 	Textures.Delete();
 	shaderProgram.Delete();
 	glfwDestroyWindow(window);
-	
 	glfwTerminate();
 	return 0;
 }
