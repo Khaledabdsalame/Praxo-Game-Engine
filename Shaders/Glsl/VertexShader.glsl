@@ -9,10 +9,13 @@ uniform bool useTexture;
 out vec2 TexCoord; // Changed to vec2
 
 uniform mat4 camMatrix;
+
+uniform mat4 model;
+
 void main()
 {
  
-      gl_Position = camMatrix*vec4(size * aPos, 1.0);
+      gl_Position = camMatrix*model*vec4(size * aPos, 1.0);
   
     
 

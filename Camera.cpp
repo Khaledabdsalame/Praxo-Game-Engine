@@ -21,32 +21,15 @@ glm::mat4 model = glm::mat4(1.0f);
 void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, Shader& shader, const char* uniform, GLFWwindow*  window)
 {
 	
-	// Initializes matrices since otherwise they will be the null matrix
-	view = glm::lookAt(Position, Position + Orientation, Up);
-	// Adds perspective to the scene
-	projection = glm::perspective(glm::radians(FOVdeg), (float)width / height, nearPlane, farPlane);
+	glm::mat4 view = GetViewMatrix();
+	glm::mat4 projection = GetProjectionMatrix(FOVdeg, nearPlane, farPlane);
 
-	// Exports the camera matrix to the Vertex Shader
-	ImGuizmo::BeginFrame();
-	ImGuizmo::Enable(true); // Ensure the gizmo is enabled
-
-	ImGuizmo::SetOrthographic(false);
-	ImGuizmo::SetRect(0, 0, width, height);
-
-	static ImGuizmo::OPERATION operation = ImGuizmo::TRANSLATE;
-	if (ImGui::IsKeyPressed(ImGuiKey_T)) operation = ImGuizmo::TRANSLATE;
-	if (ImGui::IsKeyPressed(ImGuiKey_G)) operation = ImGuizmo::ROTATE;
-	if (ImGui::IsKeyPressed(ImGuiKey_H)) operation = ImGuizmo::SCALE;
-
-		
-	ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection),
-		operation, ImGuizmo::MODE::WORLD, glm::value_ptr(model));
-
-	// Set the ImGuizmo manipulation mode
+	// ????? ?????? ???????? ??????
+	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE,
+		glm::value_ptr(projection * view));
 	
-	// Makes camera look in the right direction from the right position
+
 	
-	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(projection * view* model));
 }
 
 
@@ -99,7 +82,7 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime)
 
 
 	// Handles mouse inputs
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
 	{
 		// Hides mouse cursor
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
@@ -139,7 +122,7 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime)
 		  
 		glfwSetCursorPos(window, (width / 2), (height / 2));
 	}
-	else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+	else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_RELEASE)
 	{
 		// Unhides cursor since camera is not looking around anymore
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -150,3 +133,63 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime)
 	
 }
 
+
+glm::vec3 Camera::ScreenPosToWorldRay(
+	float mouseX, float mouseY,
+	float screenWidth, float screenHeight,
+	const glm::mat4& viewMatrix,
+	const glm::mat4& projectionMatrix)
+{
+	// ????? ???????? ?????? ??? ???????? NDC
+	glm::vec4 rayClip(
+		(2.0f * mouseX) / screenWidth - 1.0f,
+		1.0f - (2.0f * mouseY) / screenHeight,
+		-1.0f,
+		1.0f);
+
+	// ????? ??? ???????? ????????
+	glm::vec4 rayEye = glm::inverse(projectionMatrix) * rayClip;
+	rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
+
+	// ????? ??? ???????? ??????
+	glm::vec3 rayWorld = glm::vec3(glm::inverse(viewMatrix) * rayEye);
+	return glm::normalize(rayWorld);
+}
+
+bool Camera::RayOBBIntersection(
+	const glm::vec3& rayOrigin, const glm::vec3& rayDirection,
+	const glm::mat4& modelMatrix,
+	const glm::vec3& aabbMin, const glm::vec3& aabbMax,
+	float& intersectionDistance)
+{
+	float tMin = 0.0f;
+	float tMax = 100000.0f;
+
+	glm::vec3 obbPosition(modelMatrix[3]);
+	glm::vec3 delta = obbPosition - rayOrigin;
+
+	// ?????? ??????? ?? ????????? ???????
+	for (int i = 0; i < 3; i++) {
+		glm::vec3 axis(modelMatrix[i]);
+		float e = glm::dot(axis, delta);
+		float f = glm::dot(rayDirection, axis);
+
+		if (fabs(f) > 0.001f) {
+			float t1 = (e + aabbMin[i]) / f;
+			float t2 = (e + aabbMax[i]) / f;
+
+			if (t1 > t2) std::swap(t1, t2);
+			if (t2 < tMax) tMax = t2;
+			if (t1 > tMin) tMin = t1;
+
+			if (tMax < tMin) return false;
+		}
+		else {
+			if (-e + aabbMin[i] > 0.0f || -e + aabbMax[i] < 0.0f)
+				return false;
+		}
+	}
+
+	intersectionDistance = tMin;
+	return true;
+}

@@ -49,6 +49,23 @@ public:
 	void Inputs(GLFWwindow* window, float deltaTime);
 
 
+	static glm::vec3 ScreenPosToWorldRay(
+		float mouseX, float mouseY,
+		float screenWidth, float screenHeight,
+		const glm::mat4& viewMatrix,
+		const glm::mat4& projectionMatrix);
+
+	static bool RayOBBIntersection(
+		const glm::vec3& rayOrigin, const glm::vec3& rayDirection,
+		const glm::mat4& modelMatrix,
+		const glm::vec3& aabbMin, const glm::vec3& aabbMax,
+		float& intersectionDistance);
+
+	glm::mat4 GetViewMatrix() const { return glm::lookAt(Position, Position + Orientation, Up); }
+	glm::mat4 GetProjectionMatrix(float FOVdeg, float nearPlane, float farPlane) const {
+		return glm::perspective(glm::radians(FOVdeg), (float)width / height, nearPlane, farPlane);
+	}
+
 	
 	
 };

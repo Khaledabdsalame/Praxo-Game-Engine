@@ -1,15 +1,13 @@
 
 
-
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include"Shaders/ShaderClass.h"
-
 #include"Buffers/EBO.h"
 #include"Buffers/VAO.h"
 #include"Buffers/VBO.h"
 #include "Models/Models.h"
 #include<stb/stb_image.h>
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
 #include<Windows.h>
 #include<iostream>
 #include<glad/glad.h>
@@ -21,15 +19,16 @@
 
 
 
-
 int main()
 {
 	// Initialize GLFW
 	glfwInit();
 
 	PraxoConsole console;
-
 	
+	
+	
+
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	
@@ -53,8 +52,11 @@ int main()
 
 	
 
-	
+	glm::mat4 cubeModel = glm::mat4(1.0f);
+	glm::mat4 pyramidModel = glm::mat4(1.0f);
+	ImGuizmo::OPERATION currentGizmoOperation = ImGuizmo::TRANSLATE;
 
+	int selectedObject = 0;
 
 	
 	Texture Textures;
@@ -89,7 +91,8 @@ int main()
 	EBO5.Unbind();
 
 	
-
+	ImGuiWindowFlags window_flags =
+		ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
 
 
 
@@ -109,11 +112,13 @@ int main()
 	bool drawTriangle = false;
 	bool DrawSquare = true;
 	bool Gradinet = true;
+	bool showGizmo = false;
+
 	float size = 1.0f;
 	float color[4] = { 1.0f, 0.97f, 0.95f, 1.0f };
 	float color1[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	float color2[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-
+	
 	
 
 	//Shader Prgrame
@@ -134,7 +139,7 @@ int main()
 	float lastFrame = 0.0f;
 
 	
-	
+	static std::vector<std::string> gameObjects = {"Cube","Pyramid"};
 	while (!glfwWindowShouldClose(window))
 	{
 		ImGui_ImplOpenGL3_NewFrame();
@@ -147,11 +152,11 @@ int main()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
+		
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	
+		
 		
         
 
@@ -163,15 +168,15 @@ int main()
 	
 
 	
-		camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix", window);
+		
 		camera.Inputs(window, deltaTime);
+		camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix", window);
 		Textures.Bind();
 
 		ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
 
 		// Window flags to disable moving, resizing, and the title bar
-		ImGuiWindowFlags window_flags =
-			ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse ;
+		 ;
 
 			
 		
@@ -235,28 +240,111 @@ int main()
 				
 				
 				
-				VAO4.Bind();	
+				glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(cubeModel));
+				VAO4.Bind();
 				glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 			}
-			else if (drawTriangle)
+			 if (drawTriangle)
 			{
 
 				
 				
-				VAO5.Bind();
-			    glDrawElements(GL_TRIANGLES,36, GL_UNSIGNED_INT, 0);
+				 glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(pyramidModel));
+				 VAO5.Bind();
+				 glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+			}
+
+
+			 if (ImGui::IsMouseClicked(0) && !ImGui::GetIO().WantCaptureMouse) {
+				 
+				 ImVec2 mousePos = ImGui::GetMousePos();
 
 				
+				 glm::vec3 rayOrigin = camera.Position;
+				 glm::vec3 rayDirection = camera.ScreenPosToWorldRay(
+					 mousePos.x, mousePos.y,
+					 io.DisplaySize.x, io.DisplaySize.y,
+					 camera.GetViewMatrix(),
+					 camera.GetProjectionMatrix(45.0f, 0.1f, 100.0f)
+				 );
+
 				
+				 float cubeDistance;
+				 
+				 if (camera.RayOBBIntersection(
+					 rayOrigin, rayDirection,
+					 cubeModel,
+					 glm::vec3(-0.5f, -0.5f, -0.5f), 
+					 glm::vec3(0.5f, 0.5f, 0.5f),
+					  
+					 cubeDistance))
+				 {
+					 selectedObject = 0;
+					 showGizmo = true;
+				 }
+				 
+				 else if (camera.RayOBBIntersection(
+					 rayOrigin, rayDirection,
+					 pyramidModel,
+					 glm::vec3(-0.5f, -0.5f, -0.5f), 
+					 glm::vec3(0.5f, 0.5f, 0.5f),    
+					 cubeDistance))
+				 {
+					 selectedObject = 1;
+					 showGizmo = true;
+				 }
+				 else {
+					 showGizmo = false;
+				 }
+			 }
+
+
+			 ImGui::SetNextWindowPos(ImVec2(0, 320), ImGuiCond_Always);
+			 ImGui::Begin("ESC Temp", nullptr, window_flags);
+			 ImGui::Text("Select a Game Object:");
+			 ImGui::BeginChild("ScrollingRegion", ImVec2(0, 200), true, ImGuiWindowFlags_HorizontalScrollbar);
+			 for (int i = 0; i < gameObjects.size(); ++i) {
+				 if (ImGui::Selectable(gameObjects[i].c_str(), selectedObject == i)) {
+					 selectedObject = i;
+					 showGizmo = true;
+				 }
+			 }
+
+			 ImGui::EndChild();
+			 ImGui::End();
+
+
+			 
+			 if (showGizmo) {
+				 ImGuizmo::BeginFrame();
+				 ImGuizmo::Enable(true); 
 				
-			}
+			     ImGuizmo::SetOrthographic(false);
+				
+
+				 ImGuizmo::SetRect(0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN));
+
+				
+				 if (ImGui::IsKeyPressed(ImGuiKey_T)) currentGizmoOperation = ImGuizmo::TRANSLATE;
+				 if (ImGui::IsKeyPressed(ImGuiKey_G))currentGizmoOperation = ImGuizmo::ROTATE;
+				 if (ImGui::IsKeyPressed(ImGuiKey_H)) currentGizmoOperation = ImGuizmo::SCALE;
+				 
+				 glm::mat4* modelToManipulate = (selectedObject == 0) ? &cubeModel : &pyramidModel;
+				 ImGuizmo::Manipulate(
+					 glm::value_ptr(camera.GetViewMatrix()),
+					 glm::value_ptr(camera.GetProjectionMatrix(45.0f, 0.1f, 100.0f)),
+					 currentGizmoOperation,
+					 ImGuizmo::LOCAL,
+					 glm::value_ptr(*modelToManipulate)
+				 );
+			 }
          
 		
 		
 		
 		ImGui::SliderFloat("Size", &size, 0.0f, 2.0f);
-		// Fancy color editor that appears in the window
+		
 		ImGui::ColorEdit4("Color", color );
 		shaderProgram.Activate();
 		glUniform1f(shaderProgram.BindImgui("size"), size);
@@ -266,7 +354,6 @@ int main()
 		ImGui::Checkbox("Gradient", &Gradinet);
 		if (Gradinet)
 		{  
-			//Reset Values 
 			
 			
 			ImGui::ColorEdit4("Color1", color1);
@@ -331,6 +418,7 @@ int main()
 		
         
 		ImGui::End();
+
 		
 		
 		
