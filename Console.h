@@ -37,14 +37,15 @@ private :
             }
             else if (cmdStr == "Debug") {
 
-                RedirectStdout();
+                AddLog("Debug mode disabled.");
 
             }
             else if (cmdStr == "StopDebug") {
 
                 ResetStdout();  // Restore stdout
-                AddLog("Debug mode disabled.");
+                
             }
+           
             else {
                 AddLog("Unknown command: %s", cmdStr.c_str());
             }

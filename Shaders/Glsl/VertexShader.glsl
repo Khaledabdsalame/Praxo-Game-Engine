@@ -16,9 +16,6 @@ void main()
 {
  
       gl_Position = camMatrix*model*vec4(size * aPos, 1.0);
-  
-    
-
     if (useTexture) {
         TexCoord = aTex; // Use provided texture coordinates
     } else {

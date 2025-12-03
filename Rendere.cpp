@@ -216,41 +216,8 @@ int main()
 		
 
 
-		if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
-			ImGui::OpenPopup("ScreenClickPopup");
-		}
+		
 
-		// Center the popup at mouse position
-		if (ImGui::BeginPopup("ScreenClickPopup")) {
-			ImGui::SetNextWindowPos(io.MousePos, ImGuiCond_Appearing);  // Open at click location
-
-			if (ImGui::BeginMenu("Add")) {
-				if (ImGui::MenuItem("Cube"))
-				{
-
-				}
-				if (ImGui::MenuItem("Pyramid"))
-				{
-
-				}
-
-				if (ImGui::MenuItem("Circle"))
-				{
-
-				}
-			ImGui::EndMenu();
-			}
-			if (ImGui::MenuItem("Option 2")) {
-				// Handle option 2
-			}
-			if (ImGui::MenuItem("Close")) {
-				ImGui::CloseCurrentPopup();
-			}
-
-			
-
-			ImGui::EndPopup();
-		}
 		
 		
 			
@@ -288,8 +255,24 @@ int main()
 				 glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(light));
 				 lightVAO.Bind();
 				 glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+				 ImGui::ColorEdit4("Light", lightcolor);
+				 glUniform4f(lightShader.BindImgui("lightColor"), lightcolor[0], lightcolor[1], lightcolor[2], lightcolor[3]);
+
+				 shaderProgram.Activate();
+				 glUniform4f(shaderProgram.BindImgui("lightColor"), lightcolor[0], lightcolor[1], lightcolor[2], lightcolor[3]);
 
 			 }
+			 else 
+			 {
+				 
+				 shaderProgram.Activate();
+				 glUniform4f(shaderProgram.BindImgui("lightColor"), 0.0f ,0.0f, 0.0f, 0.0f);
+				 glUniform4f(shaderProgram.BindImgui("color"), color[0], color[1], color[2], color[3]);
+				 glUniform4f(shaderProgram.BindImgui("color1"), color1[0], color1[1], color1[2], color1[3]);
+				 glUniform4f(shaderProgram.BindImgui("color2"), color2[0], color2[1], color2[2], color2[3]);
+
+			 }
+			 
 
 			 if (ImGui::IsMouseClicked(0) && !ImGui::GetIO().WantCaptureMouse) {
 				 
@@ -385,8 +368,7 @@ int main()
 					 glm::value_ptr(*modelToManipulate)
 				 );
 			 }
-         
-		
+			
 		
 		
 		ImGui::SliderFloat("Size", &size, 0.0f, 2.0f);
@@ -394,15 +376,9 @@ int main()
 		ImGui::ColorEdit4("Color", color );
 		shaderProgram.Activate();
 		glUniform1f(shaderProgram.BindImgui("size"), size);
-
+	
 		glUniform4f(shaderProgram.BindImgui("color"), color[0], color[1], color[2], color[3]);
-		if (addlight)
-		{
-			ImGui::ColorEdit4("Light", lightcolor);
-			lightShader.Activate();
-			glUniform4f(lightShader.BindImgui("lightColor"), lightcolor[0], lightcolor[1], lightcolor[2], lightcolor[3]);
-
-		}
+		
 		ImGui::Checkbox("Gradient", &Gradinet);
 		if (Gradinet)
 		{  
@@ -427,6 +403,7 @@ int main()
 		}
 		glUniform4f(shaderProgram.BindImgui("color1"), color1[0], color1[1], color1[2], color1[3]);
 	    glUniform4f(shaderProgram.BindImgui("color2"), color2[0], color2[1], color2[2], color2[3]);
+	
 		
 		// Ends the window
 		ImGui::End();
@@ -440,7 +417,6 @@ int main()
 
 		if (ImGui::Button("Import Texture"))
 		{
-			// Open file diaog
 			IGFD::FileDialogConfig config;
 			config.path = ".";
 			ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Select A Texture", ".png,.jpg",config);
@@ -450,7 +426,7 @@ int main()
 		{
 			if (ImGuiFileDialog::Instance()->IsOk())
 			{
-				
+				shaderProgram.Activate();
 				std::string filePath = ImGuiFileDialog::Instance()->GetFilePathName();
 				Textures.Setter(filePath.c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 				glUniform1i(glGetUniformLocation(shaderProgram.ID, "useTexture"), 1);
@@ -463,6 +439,7 @@ int main()
 		}
 		
 		if (ImGui::Button("Delete Texture")) {
+			shaderProgram.Activate();
 			Textures.Unbind();
 			glUniform1i(glGetUniformLocation(shaderProgram.ID, "useTexture"), 0);
 		}
