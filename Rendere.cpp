@@ -19,6 +19,8 @@
 
 
 
+
+
 int main()
 {
 	// Initialize GLFW
@@ -53,16 +55,12 @@ int main()
 	
 
 	glm::mat4 cubeModel = glm::mat4(1.0f);
-
-	glm::vec3 PYRAMIDPos = glm::vec3(1.5f, -0.5f, 0.0f);
 	glm::mat4 pyramidModel = glm::mat4(1.0f);
-	pyramidModel= glm::translate(pyramidModel, PYRAMIDPos);
-
-
-	glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
 	glm::mat4 light = glm::mat4(1.0f);
-	light = glm::translate(light, lightPos);
+	
 	ImGuizmo::OPERATION currentGizmoOperation = ImGuizmo::TRANSLATE;
+	
+	
 
 	int selectedObject = 0;
 
@@ -80,8 +78,9 @@ int main()
 	VAO4.Bind();
 	VBO VBO4(Verticies::cubeVertices, sizeof(Verticies::cubeVertices));
 	EBO EBO4(Verticies::cubeIndices, sizeof(Verticies::cubeIndices));
-	VAO4.LinkAttrib(VBO4, 0, 3, GL_FLOAT, 5 * sizeof(float), (void*)0);
-	VAO4.LinkAttrib(VBO4, 1, 2, GL_FLOAT, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	VAO4.LinkAttrib(VBO4, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
+	VAO4.LinkAttrib(VBO4, 1, 2, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	VAO4.LinkAttrib(VBO4, 2, 3, GL_FLOAT, 8 * sizeof(float), (void*)(5 * sizeof(float)));
 	VAO4.Unbind();
 	VBO4.Unbind();
 	EBO4.Unbind();
@@ -92,8 +91,9 @@ int main()
 	VAO5.Bind();
 	VBO VBO5(Verticies::Pyramides, sizeof(Verticies::Pyramides));
 	EBO EBO5(Verticies::Pyramides_indices, sizeof(Verticies::Pyramides_indices));
-	VAO5.LinkAttrib(VBO5, 0, 3, GL_FLOAT, 5 * sizeof(float), (void*)0);
-	VAO5.LinkAttrib(VBO5, 1, 2, GL_FLOAT, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	VAO5.LinkAttrib(VBO5, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
+	VAO5.LinkAttrib(VBO5, 1, 2, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	VAO5.LinkAttrib(VBO5, 2, 3, GL_FLOAT, 8 * sizeof(float), (void*)(5 * sizeof(float)));
 	VAO5.Unbind();
 	VBO5.Unbind();
 	EBO5.Unbind();
@@ -138,7 +138,7 @@ int main()
 	bool Gradinet = true;
 	bool showGizmo = false;
 
-	float size = 1.0f;
+	
 	float color[4] = { 1.0f, 0.97f, 0.95f, 1.0f };
 	float color1[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	float color2[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -147,7 +147,7 @@ int main()
 
 	//Shader Prgrame
 	shaderProgram.Activate();
-	glUniform1f(shaderProgram.BindImgui("size"), size);
+	
     glUniform4f(shaderProgram.BindImgui("color"), color[0], color[1], color[2], color[3]);
 	
 	glUniform4f(shaderProgram.BindImgui("color1"), color1[0], color1[1], color1[2], color1[3]);
@@ -260,6 +260,8 @@ int main()
 
 				 shaderProgram.Activate();
 				 glUniform4f(shaderProgram.BindImgui("lightColor"), lightcolor[0], lightcolor[1], lightcolor[2], lightcolor[3]);
+				 glUniform3f(shaderProgram.BindImgui("lightPos"),glm::vec3(light[3]).x, glm::vec3(light[3]).y, glm::vec3(light[3]).z);
+				 glUniform3f(shaderProgram.BindImgui("camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
 
 			 }
 			 else 
@@ -346,6 +348,8 @@ int main()
 
 			 
 			 if (showGizmo) {
+				 
+
 				 ImGuizmo::BeginFrame();
 				 ImGuizmo::Enable(true); 
 				
@@ -359,23 +363,24 @@ int main()
 				 if (ImGui::IsKeyPressed(ImGuiKey_G))currentGizmoOperation = ImGuizmo::ROTATE;
 				 if (ImGui::IsKeyPressed(ImGuiKey_H)) currentGizmoOperation = ImGuizmo::SCALE;
 				 
+				 
 				 glm::mat4* modelToManipulate = (selectedObject == 0) ? &cubeModel : (selectedObject == 1) ? &pyramidModel : &light;
 				 ImGuizmo::Manipulate(
 					 glm::value_ptr(camera.GetViewMatrix()),
 					 glm::value_ptr(camera.GetProjectionMatrix(45.0f, 0.1f, 100.0f)),
 					 currentGizmoOperation,
-					 ImGuizmo::LOCAL,
+					 ImGuizmo::WORLD,
 					 glm::value_ptr(*modelToManipulate)
 				 );
 			 }
 			
 		
 		
-		ImGui::SliderFloat("Size", &size, 0.0f, 2.0f);
+		
 		
 		ImGui::ColorEdit4("Color", color );
 		shaderProgram.Activate();
-		glUniform1f(shaderProgram.BindImgui("size"), size);
+		
 	
 		glUniform4f(shaderProgram.BindImgui("color"), color[0], color[1], color[2], color[3]);
 		
